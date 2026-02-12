@@ -1,8 +1,13 @@
 /**
- * Manual image format encoders for formats not natively supported by canvas.toBlob()
+ * Helper functions for custom image format encoders
+ * Used by converters that don't have native browser support
  */
 
-export function canvasToBMP(canvas: HTMLCanvasElement): Blob {
+/**
+ * Encodes a canvas to BMP format
+ * BMP is not natively supported by canvas.toBlob()
+ */
+export function encodeBMP(canvas: HTMLCanvasElement): Blob {
   const ctx = canvas.getContext('2d')!
   const { width, height } = canvas
   const imageData = ctx.getImageData(0, 0, width, height)
@@ -53,7 +58,11 @@ export function canvasToBMP(canvas: HTMLCanvasElement): Blob {
   return new Blob([buffer], { type: 'image/bmp' })
 }
 
-export function canvasToICO(canvas: HTMLCanvasElement): Promise<Blob> {
+/**
+ * Encodes a canvas to ICO format
+ * ICO supports embedded PNG data (modern format)
+ */
+export function encodeICO(canvas: HTMLCanvasElement): Promise<Blob> {
   // ICO supports embedded PNG data (modern format)
   // Max ICO dimension is 256x256, resize if needed
   let source = canvas

@@ -1,25 +1,115 @@
 :root {
-  /* Surfaces */
-  --surface-base: #141418;
-  --surface-raised: #1c1c22;
-  --surface-sunken: #0e0e12;
-
-  /* Text */
-  --text-primary: #eeeef0;
-  --text-secondary: #b0b0b8;
-  --text-muted: #6a6a78;
-
-  /* Accent — warm ember orange */
-  --accent: #E8794A;
-  --accent-hover: #f08a5c;
-  --accent-dim: rgba(232, 121, 73, 0.15);
-
-  /* Border */
-  --border-subtle: rgba(255, 255, 255, 0.07);
-
   /* Fonts */
   --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Cormorant', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+
+/* Dark Mode (Default) - Confortável */
+:root,
+:root[data-theme="dark"] {
+  /* Backgrounds - Roxo escuro suave */
+  --bg-primary: #1a1625;
+  --bg-secondary: #241d2f;
+  --bg-tertiary: #0f0c14;
+  --bg-accent: #2d2438;
+
+  /* Lilás Primary Scales */
+  --lilac-50: #f5f3ff;
+  --lilac-100: #ede9fe;
+  --lilac-200: #ddd6fe;
+  --lilac-300: #c4b5fd;
+  --lilac-400: #a78bfa;
+  --lilac-500: #8b5cf6;
+  --lilac-600: #7c3aed;
+  --lilac-700: #6d28d9;
+  --lilac-800: #5b21b6;
+  --lilac-900: #4c1d95;
+
+  /* Accent */
+  --accent-primary: #a78bfa;
+  --accent-hover: #8b5cf6;
+  --accent-active: #7c3aed;
+  --accent-dim: rgba(167, 139, 250, 0.15);
+  --accent-glow: rgba(167, 139, 250, 0.4);
+
+  /* Legacy accent (para compatibilidade) */
+  --accent: var(--accent-primary);
+
+  /* Text */
+  --text-primary: #f5f3ff;
+  --text-secondary: #d4d0e8;
+  --text-muted: #9b8fc7;
+  --text-disabled: #6b5f8f;
+
+  /* Borders */
+  --border-subtle: rgba(167, 139, 250, 0.1);
+  --border-medium: rgba(167, 139, 250, 0.2);
+  --border-strong: rgba(167, 139, 250, 0.3);
+
+  /* Legacy surfaces (mapeados para novos nomes) */
+  --surface-base: var(--bg-primary);
+  --surface-raised: var(--bg-secondary);
+  --surface-sunken: var(--bg-tertiary);
+
+  /* Status colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+}
+
+/* Light Mode */
+:root[data-theme="light"] {
+  /* Backgrounds */
+  --bg-primary: #fafafe;
+  --bg-secondary: #f5f3ff;
+  --bg-tertiary: #ede9fe;
+  --bg-accent: #e8e4f8;
+
+  /* Lilás (mesma escala) */
+  --lilac-50: #f5f3ff;
+  --lilac-100: #ede9fe;
+  --lilac-200: #ddd6fe;
+  --lilac-300: #c4b5fd;
+  --lilac-400: #a78bfa;
+  --lilac-500: #8b5cf6;
+  --lilac-600: #7c3aed;
+  --lilac-700: #6d28d9;
+  --lilac-800: #5b21b6;
+  --lilac-900: #4c1d95;
+
+  /* Accent (tons mais escuros para contraste) */
+  --accent-primary: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-active: #5b21b6;
+  --accent-dim: rgba(124, 58, 237, 0.1);
+  --accent-glow: rgba(124, 58, 237, 0.25);
+
+  /* Legacy */
+  --accent: var(--accent-primary);
+
+  /* Text */
+  --text-primary: #1a1625;
+  --text-secondary: #3d3452;
+  --text-muted: #6b5f8f;
+  --text-disabled: #9b8fc7;
+
+  /* Borders */
+  --border-subtle: rgba(124, 58, 237, 0.1);
+  --border-medium: rgba(124, 58, 237, 0.15);
+  --border-strong: rgba(124, 58, 237, 0.25);
+
+  /* Legacy surfaces */
+  --surface-base: var(--bg-primary);
+  --surface-raised: var(--bg-secondary);
+  --surface-sunken: var(--bg-tertiary);
+
+  /* Status colors */
+  --success: #059669;
+  --warning: #d97706;
+  --error: #dc2626;
+  --info: #2563eb;
 }
 
 *,
@@ -33,6 +123,7 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -49,7 +140,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 0;
   pointer-events: none;
   opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -87,6 +178,12 @@ button {
   background: rgba(255, 255, 255, 0.18);
 }
 
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
 /* Focus styles */
 :focus-visible {
   outline: 2px solid var(--accent);
@@ -95,6 +192,35 @@ button {
 
 /* Selection */
 ::selection {
-  background: rgba(232, 121, 73, 0.3);
+  background: var(--accent-dim);
   color: var(--text-primary);
+}
+
+/* Scroll reveal animations */
+.rv {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rv-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Smooth theme transitions — targeted, not wildcard */
+body,
+.header,
+.sidebar,
+.editor,
+.landing,
+.preview-toolbar,
+.image-info-bar,
+.floating-panel,
+.download-menu,
+button,
+input,
+select,
+a {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
