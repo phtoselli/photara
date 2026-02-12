@@ -1,29 +1,37 @@
 import type { DownloadFormat } from '../types'
-import { DOWNLOAD_FORMAT_OPTIONS } from '../constants/formats'
-import { canvasToBMP, canvasToICO } from './encoders'
+import { converterRegistry } from './converters'
 
+/**
+ * Cria um Blob usando o converter registry
+ * Sistema modular que auto-descobre formatos disponíveis
+ */
 export async function createBlob(
   canvas: HTMLCanvasElement,
   format: DownloadFormat,
   quality: number,
 ): Promise<Blob | null> {
-  if (format === 'image/bmp') {
-    return canvasToBMP(canvas)
+  const converter = converterRegistry.get(format)
+
+  if (!converter) {
+    console.error(`Formato não suportado: ${format}`)
+    return null
   }
 
-  if (format === 'image/x-icon') {
-    return canvasToICO(canvas)
+  try {
+    return await converter.encode({ canvas, quality })
+  } catch (error) {
+    console.error(`Erro ao converter para ${format}:`, error)
+    return null
   }
-
-  // Native canvas formats: png, jpeg, webp, avif
-  return new Promise<Blob | null>((resolve) => {
-    const q = format === 'image/png' ? undefined : quality / 100
-    canvas.toBlob((blob) => resolve(blob), format, q)
-  })
 }
 
+/**
+ * Faz download do blob com nome apropriado
+ */
 export function triggerDownload(blob: Blob, baseName: string, format: DownloadFormat) {
-  const ext = DOWNLOAD_FORMAT_OPTIONS.find(f => f.value === format)?.extension ?? 'png'
+  const converter = converterRegistry.get(format)
+  const ext = converter?.metadata.extension ?? 'png'
+
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
@@ -34,11 +42,31 @@ export function triggerDownload(blob: Blob, baseName: string, format: DownloadFo
   URL.revokeObjectURL(url)
 }
 
+/**
+ * Converte extensão de arquivo para MIME type
+ * Usa o registry para descobrir formatos disponíveis
+ */
 export function extensionToDownloadFormat(ext: string | undefined): DownloadFormat {
-  if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg'
-  if (ext === 'webp') return 'image/webp'
-  if (ext === 'avif') return 'image/avif'
-  if (ext === 'bmp') return 'image/bmp'
-  if (ext === 'ico') return 'image/x-icon'
+  if (!ext) return 'image/png'
+
+  const normalized = ext.toLowerCase()
+  const allConverters = converterRegistry.getAll()
+
+  // Busca por extensão exata
+  const byExt = allConverters.find(c => c.metadata.extension === normalized)
+  if (byExt) return byExt.metadata.mimeType
+
+  // Casos especiais (jpg -> jpeg)
+  if (normalized === 'jpg' || normalized === 'jpeg') {
+    const jpeg = allConverters.find(c => c.metadata.mimeType === 'image/jpeg')
+    if (jpeg) return jpeg.metadata.mimeType
+  }
+
+  if (normalized === 'ico') {
+    const ico = allConverters.find(c => c.metadata.mimeType === 'image/x-icon')
+    if (ico) return ico.metadata.mimeType
+  }
+
+  // Default: PNG
   return 'image/png'
 }
