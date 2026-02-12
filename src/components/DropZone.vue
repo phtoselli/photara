@@ -76,12 +76,12 @@ function openPicker() {
 
 .dropzone:hover {
   border-color: var(--accent);
-  background: rgba(232, 121, 73, 0.04);
+  background: var(--accent-dim);
 }
 
 .dropzone.dragging {
   border-color: var(--accent);
-  background: rgba(232, 121, 73, 0.08);
+  background: var(--accent-dim);
   transform: scale(1.01);
 }
 

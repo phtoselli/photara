@@ -1,34 +1,28 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CropArea, Dimensions } from '../types'
+import type { CropState } from './crop.types'
+import type { IToolPanelProps, IToolPanelEmits } from '../core/tool.types'
 
-const props = defineProps<{
-  cropArea: CropArea
-  originalDimensions: Dimensions
-}>()
-
-const emit = defineEmits<{
-  'update:cropArea': [area: CropArea]
-  reset: []
-}>()
+const props = defineProps<IToolPanelProps<CropState>>()
+const emit = defineEmits<IToolPanelEmits<CropState>>()
 
 const cropPercent = computed(() => {
-  const { width, height } = props.cropArea
+  const { width, height } = props.state
   const { width: ow, height: oh } = props.originalDimensions
   if (ow === 0 || oh === 0) return 0
   return Math.round((width * height) / (ow * oh) * 100)
 })
 
-function updateField(field: keyof CropArea, value: number) {
+function updateField(field: keyof CropState, value: number) {
   const v = Math.max(0, Math.round(value))
-  const area = { ...props.cropArea, [field]: v }
+  const area = { ...props.state, [field]: v }
 
   if (field === 'x') area.x = Math.min(v, props.originalDimensions.width - area.width)
   if (field === 'y') area.y = Math.min(v, props.originalDimensions.height - area.height)
   if (field === 'width') area.width = Math.min(v, props.originalDimensions.width - area.x)
   if (field === 'height') area.height = Math.min(v, props.originalDimensions.height - area.y)
 
-  emit('update:cropArea', area)
+  emit('update:state', area)
 }
 
 function applyAspectPreset(ratioW: number, ratioH: number) {
@@ -44,7 +38,7 @@ function applyAspectPreset(ratioW: number, ratioH: number) {
     h = Math.round(ow / targetRatio)
   }
 
-  emit('update:cropArea', {
+  emit('update:state', {
     x: Math.round((ow - w) / 2),
     y: Math.round((oh - h) / 2),
     width: w,
@@ -96,7 +90,7 @@ const aspectPresets = [
           <label>X</label>
           <input
             type="number"
-            :value="cropArea.x"
+            :value="state.x"
             @input="updateField('x', parseInt(($event.target as HTMLInputElement).value) || 0)"
             min="0"
           />
@@ -105,7 +99,7 @@ const aspectPresets = [
           <label>Y</label>
           <input
             type="number"
-            :value="cropArea.y"
+            :value="state.y"
             @input="updateField('y', parseInt(($event.target as HTMLInputElement).value) || 0)"
             min="0"
           />
@@ -116,7 +110,7 @@ const aspectPresets = [
           <label>Largura</label>
           <input
             type="number"
-            :value="cropArea.width"
+            :value="state.width"
             @input="updateField('width', parseInt(($event.target as HTMLInputElement).value) || 20)"
             min="20"
           />
@@ -125,7 +119,7 @@ const aspectPresets = [
           <label>Altura</label>
           <input
             type="number"
-            :value="cropArea.height"
+            :value="state.height"
             @input="updateField('height', parseInt(($event.target as HTMLInputElement).value) || 20)"
             min="20"
           />
@@ -136,7 +130,7 @@ const aspectPresets = [
     <div class="info-row">
       <div class="info-item">
         <span class="info-label">Área selecionada</span>
-        <span class="info-value">{{ cropArea.width }} × {{ cropArea.height }}</span>
+        <span class="info-value">{{ state.width }} × {{ state.height }}</span>
       </div>
       <div class="info-item">
         <span class="info-label">Da imagem</span>
@@ -146,6 +140,8 @@ const aspectPresets = [
   </div>
 </template>
 
+<style src="../core/tool-shared.css"></style>
+
 <style scoped>
 .crop-panel {
   display: flex;
@@ -153,79 +149,10 @@ const aspectPresets = [
   gap: 16px;
 }
 
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.panel-header h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.btn-ghost {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: none;
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-ghost:hover {
-  color: var(--text-primary);
-  border-color: var(--text-muted);
-}
-
-.hint {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
 .aspect-presets {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.presets-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
-}
-
-.preset-btns {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.preset-btn {
-  padding: 6px 14px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--text-secondary);
-  background: var(--surface-sunken);
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.preset-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 .crop-fields {
@@ -276,37 +203,5 @@ const aspectPresets = [
 
 .field input:focus {
   border-color: var(--accent);
-}
-
-.info-row {
-  display: flex;
-  gap: 12px;
-}
-
-.info-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px;
-  background: var(--surface-sunken);
-  border-radius: 8px;
-}
-
-.info-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.info-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.info-value.accent {
-  color: var(--accent);
 }
 </style>

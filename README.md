@@ -1,14 +1,16 @@
-# 🎨 ImageTools
+# ✨ Photara
 
-**Edite suas imagens direto no navegador, sem enrolação.**
+**φῶς (phōs) - A Luz que Revela**
 
-Sem cadastros. Sem anúncios. Sem servidores. Apenas você e suas imagens.
+Photara (do grego phōs φῶς, "luz") — refere-se à luz primordial e essencial na mitologia grega, que ilumina o mundo e revela a beleza oculta das formas.
 
-![ImageTools Screenshot](./public/images/screen.webp)
+**Edite imagens com facilidade total, sem anúncios, sem login, sem cobranças e zero burocracia.**
+
+![Photara Screenshot](./public/images/screen.webp)
 
 ---
 
-## ✨ Por que ImageTools?
+## ✨ Por que Photara?
 
 Cansado de ferramentas de edição de imagem que:
 - 🚫 Exigem login e cadastro
@@ -16,7 +18,7 @@ Cansado de ferramentas de edição de imagem que:
 - 🚫 Enviam suas imagens para servidores desconhecidos
 - 🚫 São lentas e cheias de recursos desnecessários
 
-**ImageTools** é diferente. É uma ferramenta **100% gratuita** que roda **completamente no seu navegador**. Suas imagens **nunca saem do seu computador**. Zero fricção, máxima privacidade.
+**Photara** é diferente. É uma ferramenta **100% gratuita** que roda **completamente no seu navegador**. Suas imagens **nunca saem do seu computador**. Zero fricção, máxima privacidade.
 
 ---
 
@@ -51,6 +53,8 @@ Simples assim. Sem tutoriais complicados, sem curva de aprendizado.
 Construído com tecnologias modernas da web:
 
 - **Vue 3** - Framework reativo e performático
+- **Vue Router** - Navegação SPA
+- **VueUse** - Coleção de composables utilitários
 - **TypeScript** - Segurança de tipos
 - **Canvas API** - Processamento de imagem no navegador
 - **Vite** - Build tool ultra-rápido
