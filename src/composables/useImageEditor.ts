@@ -144,7 +144,7 @@ export function useImageEditor() {
     let currentImage: HTMLImageElement = originalImage.value
 
     for (let i = 0; i < toolIds.length; i++) {
-      const toolId = toolIds[i]
+      const toolId = toolIds[i]!
       const tool = toolRegistry.get(toolId)
       if (!tool) continue
 
