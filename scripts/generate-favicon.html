@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate Favicon</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    h1 { color: #E87949; }
+    button {
+      background: #E87949;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+    button:hover {
+      background: #d66a3a;
+    }
+    canvas {
+      border: 2px solid #444;
+      margin: 20px 0;
+      image-rendering: pixelated;
+    }
+    .preview {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .size-preview {
+      text-align: center;
+    }
+    .size-label {
+      color: #888;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 ImageTools Favicon Generator</h1>
+  <p>Click the button below to generate and download the favicon files.</p>
+
+  <button onclick="generateAndDownload()">Generate & Download All Sizes</button>
+
+  <div class="preview" id="preview"></div>
+
+  <script>
+    function drawFavicon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      canvas.width = size;
+      canvas.height = size;
+
+      // Dark gray background with rounded corners
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fillRect(0, 0, size, size);
+
+      // Scale for different sizes
+      const scale = size / 32;
+      const strokeWidth = 1.8 * scale;
+      const offset = size / 4;
+
+      // Orange crop icon
+      ctx.strokeStyle = '#E87949';
+      ctx.lineWidth = strokeWidth;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // First path
+      ctx.beginPath();
+      ctx.moveTo(offset + 6.13 * scale, offset + 1 * scale);
+      ctx.lineTo(offset + 6 * scale, offset + 16 * scale);
+      ctx.quadraticCurveTo(
+        offset + 6 * scale, offset + 18 * scale,
+        offset + 8 * scale, offset + 18 * scale
+      );
+      ctx.lineTo(offset + 23 * scale, offset + 18 * scale);
+      ctx.stroke();
+
+      // Second path
+      ctx.beginPath();
+      ctx.moveTo(offset + 1 * scale, offset + 6.13 * scale);
+      ctx.lineTo(offset + 16 * scale, offset + 6 * scale);
+      ctx.quadraticCurveTo(
+        offset + 18 * scale, offset + 6 * scale,
+        offset + 18 * scale, offset + 8 * scale
+      );
+      ctx.lineTo(offset + 18 * scale, offset + 23 * scale);
+      ctx.stroke();
+    }
+
+    function downloadCanvas(canvas, filename) {
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    function generateAndDownload() {
+      const sizes = [16, 32, 48, 64, 128, 256];
+      const preview = document.getElementById('preview');
+      preview.innerHTML = '';
+
+      sizes.forEach(size => {
+        const canvas = document.createElement('canvas');
+        drawFavicon(canvas, size);
+
+        // Add to preview
+        const container = document.createElement('div');
+        container.className = 'size-preview';
+        container.appendChild(canvas.cloneNode(true));
+        const label = document.createElement('div');
+        label.className = 'size-label';
+        label.textContent = `${size}x${size}`;
+        container.appendChild(label);
+        preview.appendChild(container);
+
+        // Download
+        setTimeout(() => {
+          downloadCanvas(canvas, `favicon-${size}x${size}.png`);
+        }, size * 10);
+      });
+
+      alert('All favicon sizes will be downloaded. Use an online ICO converter (like favicon.io) to create the final favicon.ico file from these PNGs.');
+    }
+
+    // Generate preview on load
+    window.onload = () => {
+      const sizes = [16, 32, 48];
+      const preview = document.getElementById('preview');
+
+      sizes.forEach(size => {
+        const canvas = document.createElement('canvas');
+        drawFavicon(canvas, size);
+
+        const container = document.createElement('div');
+        container.className = 'size-preview';
+        container.appendChild(canvas);
+        const label = document.createElement('div');
+        label.className = 'size-label';
+        label.textContent = `${size}x${size}`;
+        container.appendChild(label);
+        preview.appendChild(container);
+      });
+    };
+  </script>
+</body>
+</html>
