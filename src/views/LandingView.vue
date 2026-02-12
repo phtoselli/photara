@@ -29,7 +29,7 @@ const vReveal = {
     if (delay) el.style.transitionDelay = `${delay}ms`
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry?.isIntersecting) {
           requestAnimationFrame(() => el.classList.add('rv-visible'))
           observer.disconnect()
         }
