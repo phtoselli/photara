@@ -90,7 +90,7 @@ function drawCropOverlay(ctx: CanvasRenderingContext2D, canvasW: number, canvasH
   ctx.fillRect(cx + cw, cy, canvasW - cx - cw, ch)
 
   // Crop border
-  ctx.strokeStyle = '#E8794A'
+  ctx.strokeStyle = '#a78bfa'
   ctx.lineWidth = 2
   ctx.strokeRect(cx, cy, cw, ch)
 
@@ -110,7 +110,7 @@ function drawCropOverlay(ctx: CanvasRenderingContext2D, canvasW: number, canvasH
 
   // Corner handles
   const handleSize = 10
-  ctx.fillStyle = '#E8794A'
+  ctx.fillStyle = '#a78bfa'
   const corners: [number, number][] = [
     [cx, cy],
     [cx + cw, cy],

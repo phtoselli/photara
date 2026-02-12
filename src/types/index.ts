@@ -1,20 +1,4 @@
-export type Tool = 'resize' | 'crop' | 'expand' | 'vignette' | 'convert'
-
-export type VignetteDirection = 'radial' | 'left' | 'right' | 'top' | 'bottom'
-
-export interface VignetteSettings {
-  direction: VignetteDirection
-  color: string
-  intensity: number
-  spread: number
-}
-
-export interface ExpandPadding {
-  top: number
-  right: number
-  bottom: number
-  left: number
-}
+export type Tool = string
 
 export type ImageFormat = 'image/png' | 'image/jpeg' | 'image/webp'
 
@@ -36,13 +20,7 @@ export interface FormatOption {
   extension: string
 }
 
-export type DownloadFormat =
-  | 'image/png'
-  | 'image/jpeg'
-  | 'image/webp'
-  | 'image/avif'
-  | 'image/bmp'
-  | 'image/x-icon'
+export type DownloadFormat = string
 
 export interface DownloadFormatOption {
   label: string

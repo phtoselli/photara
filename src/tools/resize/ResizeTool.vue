@@ -1,37 +1,74 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Dimensions } from '../types'
+import type { ResizeState } from './resize.types'
+import type { IToolPanelProps, IToolPanelEmits } from '../core/tool.types'
 
-const props = defineProps<{
-  width: number
-  height: number
-  originalDimensions: Dimensions
-  lockAspectRatio: boolean
-}>()
-
-const emit = defineEmits<{
-  'update:width': [value: number]
-  'update:height': [value: number]
-  'update:lockAspectRatio': [value: boolean]
-  reset: []
-  applyPercent: [value: number]
-}>()
+const props = defineProps<IToolPanelProps<ResizeState>>()
+const emit = defineEmits<IToolPanelEmits<ResizeState>>()
 
 const scalePercent = computed(() => {
   if (props.originalDimensions.width === 0) return 100
-  return Math.round((props.width / props.originalDimensions.width) * 100)
+  return Math.round((props.state.width / props.originalDimensions.width) * 100)
 })
 
 const presets = [25, 50, 75, 100, 150, 200]
 
+function updateWidth(w: number) {
+  const newWidth = Math.max(1, Math.round(w))
+  let newHeight = props.state.height
+
+  if (props.state.lockAspectRatio) {
+    newHeight = Math.max(1, Math.round(newWidth / props.state.aspectRatio))
+  }
+
+  emit('update:state', {
+    ...props.state,
+    width: newWidth,
+    height: newHeight,
+  })
+}
+
+function updateHeight(h: number) {
+  const newHeight = Math.max(1, Math.round(h))
+  let newWidth = props.state.width
+
+  if (props.state.lockAspectRatio) {
+    newWidth = Math.max(1, Math.round(newHeight * props.state.aspectRatio))
+  }
+
+  emit('update:state', {
+    ...props.state,
+    width: newWidth,
+    height: newHeight,
+  })
+}
+
+function toggleLock() {
+  emit('update:state', {
+    ...props.state,
+    lockAspectRatio: !props.state.lockAspectRatio,
+  })
+}
+
+function applyPercent(percent: number) {
+  const w = Math.round(props.originalDimensions.width * percent / 100)
+  const h = Math.round(props.originalDimensions.height * percent / 100)
+
+  emit('update:state', {
+    ...props.state,
+    width: Math.max(1, w),
+    height: Math.max(1, h),
+  })
+}
+
 function onWidthInput(e: Event) {
   const val = parseInt((e.target as HTMLInputElement).value) || 1
-  emit('update:width', val)
+  updateWidth(val)
 }
 
 function onHeightInput(e: Event) {
   const val = parseInt((e.target as HTMLInputElement).value) || 1
-  emit('update:height', val)
+  updateHeight(val)
 }
 </script>
 
@@ -52,7 +89,7 @@ function onHeightInput(e: Event) {
         <label>Largura <span class="unit">px</span></label>
         <input
           type="number"
-          :value="width"
+          :value="state.width"
           @input="onWidthInput"
           min="1"
           max="10000"
@@ -61,11 +98,11 @@ function onHeightInput(e: Event) {
 
       <button
         class="lock-btn"
-        :class="{ active: lockAspectRatio }"
-        @click="emit('update:lockAspectRatio', !lockAspectRatio)"
-        :title="lockAspectRatio ? 'Desbloquear proporção' : 'Bloquear proporção'"
+        :class="{ active: state.lockAspectRatio }"
+        @click="toggleLock"
+        :title="state.lockAspectRatio ? 'Desbloquear proporção' : 'Bloquear proporção'"
       >
-        <svg v-if="lockAspectRatio" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg v-if="state.lockAspectRatio" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
         </svg>
         <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -77,7 +114,7 @@ function onHeightInput(e: Event) {
         <label>Altura <span class="unit">px</span></label>
         <input
           type="number"
-          :value="height"
+          :value="state.height"
           @input="onHeightInput"
           min="1"
           max="10000"
@@ -98,7 +135,7 @@ function onHeightInput(e: Event) {
           :key="p"
           class="preset-btn"
           :class="{ active: scalePercent === p }"
-          @click="emit('applyPercent', p)"
+          @click="applyPercent(p)"
         >
           {{ p }}%
         </button>
@@ -112,51 +149,19 @@ function onHeightInput(e: Event) {
       </div>
       <div class="info-item">
         <span class="info-label">Novo</span>
-        <span class="info-value accent">{{ width }} × {{ height }}</span>
+        <span class="info-value accent">{{ state.width }} × {{ state.height }}</span>
       </div>
     </div>
   </div>
 </template>
+
+<style src="../core/tool-shared.css"></style>
 
 <style scoped>
 .resize-panel {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.panel-header h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.btn-ghost {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: none;
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-ghost:hover {
-  color: var(--text-primary);
-  border-color: var(--text-muted);
 }
 
 .dimensions-row {
@@ -227,7 +232,7 @@ function onHeightInput(e: Event) {
 .lock-btn.active {
   color: var(--accent);
   border-color: var(--accent);
-  background: rgba(232, 121, 73, 0.1);
+  background: var(--accent-dim);
 }
 
 .lock-btn:hover {
@@ -265,66 +270,5 @@ function onHeightInput(e: Event) {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);
-}
-
-.preset-btns {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.preset-btn {
-  padding: 6px 14px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--text-secondary);
-  background: var(--surface-sunken);
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.preset-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.preset-btn.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-
-.info-row {
-  display: flex;
-  gap: 16px;
-}
-
-.info-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px;
-  background: var(--surface-sunken);
-  border-radius: 8px;
-}
-
-.info-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.info-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.info-value.accent {
-  color: var(--accent);
 }
 </style>
